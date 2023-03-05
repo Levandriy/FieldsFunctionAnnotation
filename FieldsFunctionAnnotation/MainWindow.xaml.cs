@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,6 +14,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using static FieldsFunctionAnnotation.MainWindow;
 
 namespace FieldsFunctionAnnotation
 {
@@ -24,6 +26,50 @@ namespace FieldsFunctionAnnotation
         public MainWindow()
         {
             InitializeComponent();
+        }
+        public class BrokenKey
+        {
+            public Nullable<int> Row { get; set; } = null!;
+            public Nullable<int> Column { get; set; } = null!;
+            public ToggleButton Toggle { get; set; } = null!;
+        }
+        public class Snake
+        {
+            public int Start { get; set; }
+            public int End { get; set; }
+            public int Destination_column { get; set; }
+            public int Destination_row { get; set; }
+            public SolidColorBrush Snake_Color { get; set; } = new();
+            public int Current_Row { get; set; }
+            public int Current_Column { get; set; } = 0;
+            public bool Snake_on_Front = false;
+            public bool? win = null;
+        }
+        public List<BrokenKey> BrokenKeys = new();
+        private void Key_broken(object sender, RoutedEventArgs e)
+        {
+            for (int i = 0; i < Front.Children.Count; i++)
+            {
+                var grid = Front.Children[i] as Grid;
+                for (int j = 0; j < grid.Children.Count; j++)
+                {
+                    var child_grid = grid.Children[j] as Grid;
+                    var arrow = child_grid.Children[0] as ToggleButton;
+                    if (arrow == sender as ToggleButton)
+                    {
+                        BrokenKey brokenKey = new BrokenKey()
+                        {
+                            Row = i,
+                            Column = j,
+                            Toggle = arrow
+                        };
+                        Debug.WriteLine(brokenKey.Row);
+                        Debug.WriteLine(brokenKey.Column);
+                        Debug.WriteLine(brokenKey.Toggle);
+                        BrokenKeys.Add(brokenKey);
+                    }
+                }
+            }
         }
         private void Generate_Fields(int size)
         {
@@ -37,7 +83,7 @@ namespace FieldsFunctionAnnotation
                 {
                     HorizontalAlignment = HorizontalAlignment.Left,
                     VerticalAlignment = VerticalAlignment.Top,
-                    Margin = new Thickness(0, 80*i, 0, 0)
+                    Margin = new Thickness(0, 80 * i, 0, 0)
                 };
                 var front_row = new Grid()
                 {
@@ -56,24 +102,18 @@ namespace FieldsFunctionAnnotation
                         VerticalAlignment = VerticalAlignment.Top,
                         Margin = new Thickness(80 * j, 0, 0, 0)
                     };
-                    var back_ball = new ToggleButton()
-                    {
-                        Margin = new Thickness(0),
-                        Style = FindResource("Ball") as Style
-                    };
                     var back_road = new Button()
                     {
-                        Margin = new Thickness(30,0,0,0),
+                        Margin = new Thickness(0, 0, 0, 0),
                         Style = FindResource("Road") as Style
                     };
-                    var verticalback_road = new Button()
+                    var back_ball = new ToggleButton()
                     {
-                        Margin = new Thickness(0, 30, 0, 0),
-                        Style = FindResource("VerticalRoad") as Style
+                        Margin = new Thickness(50, 0, 0, 0),
+                        Style = FindResource("Ball") as Style
                     };
-                    back_column.Children.Add(back_ball);
                     back_column.Children.Add(back_road);
-                    back_column.Children.Add(verticalback_road);
+                    back_column.Children.Add(back_ball);
                     back_row.Children.Add(back_column);
 
                     var front_column = new Grid()
@@ -84,27 +124,22 @@ namespace FieldsFunctionAnnotation
                     };
                     var arrow = new ToggleButton()
                     {
-                        Margin = new Thickness(15, 15, 0, 0),
+                        Margin = new Thickness(65, 15, 0, 0),
                         Style = FindResource("Arrow") as Style
                     };
+                    arrow.Click += Key_broken;
                     var front_ball = new ToggleButton()
                     {
-                        Margin = new Thickness(50, 50, 0, 0),
+                        Margin = new Thickness(95, 50, 0, 0),
                         Style = FindResource("Ball") as Style
-                    };
-                    var front_road = new Button()
-                    {
-                        Margin = new Thickness(80, 50, 0, 0),
-                        Style = FindResource("Road") as Style
                     };
                     var verticalfront_road = new Button()
                     {
-                        Margin = new Thickness(50, 80, 0, 0),
+                        Margin = new Thickness(95, 80, 0, 0),
                         Style = FindResource("VerticalRoad") as Style
                     };
                     front_column.Children.Add(arrow);
                     front_column.Children.Add(front_ball);
-                    front_column.Children.Add(front_road);
                     front_column.Children.Add(verticalfront_road);
                     front_row.Children.Add(front_column);
                 }
@@ -112,42 +147,304 @@ namespace FieldsFunctionAnnotation
                 Front.Children.Add(front_row);
             }
         }
+        private Grid Get_Back_Grid(int row, int column)
+        {
+            var grid = Back.Children[row] as Grid;
+            var ret = grid.Children[column] as Grid;
+            return ret;
+        }
+        private Grid Get_Front_Grid(int row, int column)
+        {
+            var grid = Front.Children[row] as Grid;
+            var ret = grid.Children[column] as Grid;
+            return ret;
+        }
+        public void Change_grid(Snake snake)
+        {
+            if (snake.Snake_on_Front)
+            {
+                snake.Snake_on_Front = false;
+            }
+            else
+            {
+                snake.Snake_on_Front = true;
+            }
+            var back_column = Get_Back_Grid(snake.Current_Row, snake.Current_Column);
+            var back_ball = back_column.Children[1] as ToggleButton;
+            var front_column = Get_Front_Grid(snake.Current_Row, snake.Current_Column);
+            var arrow = front_column.Children[0] as ToggleButton;
+            var ball = front_column.Children[1] as ToggleButton;
+            if (arrow.Background == snake.Snake_Color)
+            {
+                arrow.Background = new SolidColorBrush(Colors.Black);
+                ball.Background = new SolidColorBrush(Colors.Black);
+                back_ball.Background = new SolidColorBrush(Colors.Black);
+            }
+            else
+            {
+                arrow.Background = snake.Snake_Color;
+                ball.Background = snake.Snake_Color;
+                back_ball.Background = snake.Snake_Color;
+                Debug.WriteLine("Покрасил Стрелочку");
+            }
+        }
+        private bool Move_vertically(Snake snake, int step)
+        {
+            int size = Convert.ToInt32(Size.Text) - 1;
+            if (snake.Current_Row >= 0 && snake.Current_Row < size)
+            {
+                var front_column = Get_Front_Grid(snake.Current_Row, snake.Current_Column);
+                var road = front_column.Children[2] as Button;
+                Debug.WriteLine($"Буду красить вертикальный путь в точке {snake.Current_Row}; {snake.Current_Column}");
+                if (road.Background == snake.Snake_Color)
+                {
+                    road.Background = new SolidColorBrush(Colors.Black);
+                    Debug.WriteLine($"Покрасил вертикальный путь в чёрный, иду назад");
+                }
+                else
+                {
+                    road.Background = snake.Snake_Color;
+                    Debug.WriteLine($"Покрасил вертикальный путь в {snake.Snake_Color}");
+                }
+                Debug.WriteLine("Иду на " + step + " по вертикали");
+                snake.Current_Row += step;
+                Debug.WriteLine("Перешёл на новый ряд, поэтому ресет колонки назначения");
+                snake.Destination_column = snake.End;
+                return true;
+            }
+            else
+            {
+                Debug.WriteLine("По вертикали не выходит");
+                return false;
+            }
+        }
+        private bool Move_horizontally(Snake snake, int step)
+        {
+            int size = Convert.ToInt32(Size.Text) - 1;
+            if(snake.Current_Column == snake.End && snake.Current_Row == size)
+            {
+                snake.win = true;
+                Change_grid(snake);
+                return false;
+            }
+            else
+            {
+                if (snake.Current_Column >= 0 && snake.Current_Column <= size)
+                {
+                    if (step < 0)
+                    {
+                        var back_column = Get_Back_Grid(snake.Current_Row, snake.Current_Column);
+                        var road = back_column.Children[0] as Button;
+                        Debug.WriteLine($"Буду красить горизонтальный путь в точке {snake.Current_Row}; {snake.Current_Column}");
+                        if (road.Background == snake.Snake_Color)
+                        {
+                            road.Background = new SolidColorBrush(Colors.Black);
+                            Debug.WriteLine("Покрасил горизонтальный путь в чёрный, вернулся назад");
+                        }
+                        else
+                        {
+                            road.Background = snake.Snake_Color;
+                            Debug.WriteLine($"Покрасил горизонтальный путь в {snake.Snake_Color}");
+                        }
+                        Debug.WriteLine("Иду на " + step + " по горизонтали");
+                        snake.Current_Column += step;
+                    }
+                    else
+                    {
+                        Debug.WriteLine("Иду на " + step + " по горизонтали");
+                        snake.Current_Column += step;
+                        var back_column = Get_Back_Grid(snake.Current_Row, snake.Current_Column);
+                        var road = back_column.Children[0] as Button;
+                        Debug.WriteLine($"Буду красить горизонтальный путь в точке {snake.Current_Row}; {snake.Current_Column}");
+                        if (road.Background == snake.Snake_Color)
+                        {
+                            road.Background = new SolidColorBrush(Colors.Black);
+                            Debug.WriteLine("Покрасил горизонтальный путь в чёрный, вернулся назад");
+                        }
+                        else
+                        {
+                            road.Background = snake.Snake_Color;
+                            Debug.WriteLine($"Покрасил горизонтальный путь в {snake.Snake_Color}");
+                        }
+                    }
+                    Debug.WriteLine("Перешёл на новую колонку, поэтому ресет ряда назначения");
+                    snake.Destination_row = size;
+                    return true;
+                }
+                else
+                {
+                    Debug.WriteLine("По горизонтали не выходит");
+                    return false;
+                }
+            }
+        }
+        private void Move(Snake snake)
+        {
+            int size = Convert.ToInt32(Size.Text) - 1;
+            if (snake.Snake_on_Front)
+            {
+                Debug.WriteLine("Нахожусь впереди, иду по вертикали");
+                int diff = snake.Destination_row - snake.Current_Row;
+                Debug.WriteLine($"Ряд-назначение: {snake.Destination_row}|| Ряд текущий: {snake.Current_Row}");
+                if (diff > 0)
+                {
+                    Debug.WriteLine($"Разница: {diff}");
+                    int step = diff / Math.Abs(diff);
+                    var vertical_query = from keys in BrokenKeys
+                                         where keys.Column == snake.Current_Column
+                                         && keys.Row == snake.Current_Row + step
+                                         select keys;
+                    if (vertical_query.FirstOrDefault() == null)
+                    {
+                        if (Move_vertically(snake, step))
+                        {
+                            Debug.WriteLine("Moved_Vertically " + step);
+                            Debug.WriteLine("Змейка на " + snake.Current_Row + " ряду и " + snake.Current_Column + " колонке");
+                            Debug.WriteLine("Змейка должна идти к" + size + " ряду и " + snake.End + " колонке");
+                            if (snake.Current_Column != snake.End || snake.Current_Row != size)
+                            {
+                                Change_grid(snake);
+                            }
+                            else
+                            {
+                                snake.win = true;
+                            }
+                            
+                        }
+                        else
+                        {
+                            Debug.WriteLine("Проиграл на вертикале");
+                            snake.win = false;
+                        }
+                    }
+                    else
+                    {
+                        snake.Destination_row -= step;
+                    }
+                }
+                else if (diff == 0)
+                {
+                    int change = snake.Current_Column - snake.End;
+                    if (change != 0)
+                    {
+                        int step = change / Math.Abs(change);
+                        snake.Destination_column += step;
+                        Debug.WriteLine("Текущая колонка - это не тот ряд, поэтому меняю колонку, куда нужно идти");
+                    }
+                    else
+                    {
+                        Debug.WriteLine("Текущая колонка - нужный ряд, но внизу сломан ключ");
+                        if (snake.Current_Column > 0)
+                        {
+                            snake.Destination_column--;
+                            Debug.WriteLine("Слева есть место, уменьшаю цель-колонку");
+                        }
+                        else
+                        {
+                            snake.Destination_column++;
+                            Debug.WriteLine("Слева места нет, увеличиваю цель-колонку");
+                        }
+                    }
+                    Change_grid(snake);
+                    Debug.WriteLine("Иду на задний ряд");
+                }
+            }
+            else
+            {
+                int diff = snake.Destination_column - snake.Current_Column;
+                Debug.WriteLine("Это разница между текущей колонкой и колонкой назначения: " + diff);
+                if (diff != 0)
+                {
+                    int step = diff / Math.Abs(diff);
+                    Debug.WriteLine("Нужно пошагать горизонтально на: " + step);
+                    var horizontal_query = from keys in BrokenKeys
+                                           where keys.Row == snake.Current_Row
+                                           && keys.Column == snake.Current_Column + step
+                                           select keys;
+                    if (horizontal_query.FirstOrDefault() == null)
+                    {
+                        if (Move_horizontally(snake, step))
+                        {
+                            Debug.WriteLine("Moved_Horizontally " + step);
+                        }
+                        else
+                        {
+                            Debug.WriteLine("Проиграл на горизонтале");
+                            snake.win = false;
+                        }
+                    }
+                    else
+                    {
+                        snake.Destination_column -= step;
+                        Debug.WriteLine("Уменьшил колонку назначения. Теперь: " +  snake.Destination_column);
+                    }
+                }
+                if(snake.Destination_column == snake.Current_Column)
+                {
+                    try
+                    {
+                        Change_grid(snake);
+                    }
+                    catch
+                    {
+                        snake.win = false;
+                    }
+                }
+            }
+        }
+        private void Execute_Snake(int row, int column)
+        {
+            int size = Convert.ToInt32(Size.Text) - 1;
+            Snake snake = new Snake()
+            {
+                Start = row,
+                End = column,
+                Snake_Color = new SolidColorBrush(Color.FromRgb(145, 135, 165)),
+                Current_Row = row,
+                Destination_row = size,
+                Destination_column = column
+            };
+            {
+                var back_column = Get_Back_Grid(snake.Current_Row, snake.Current_Column);
+                var road = back_column.Children[0] as Button;
+                road.Background = snake.Snake_Color;
+            }
+            while (snake.win == null)
+            {
+                Move(snake);
+                Debug.WriteLine(snake.Current_Row);
+                Debug.WriteLine(snake.Current_Column);
+                if (snake.Current_Row == size && snake.Current_Column == snake.End)
+                {
+                    snake.win = true;
+                }
+            }
+            if (snake.win != null)
+            {
+                if ((bool)snake.win)
+                {
+                    Debug.WriteLine("Победа");
+                    var front_column = Get_Front_Grid(snake.Current_Row, snake.Current_Column);
+                    var road = front_column.Children[2] as Button;
+                    road.Background = snake.Snake_Color;
+                }
+                else
+                {
+                    MessageBox.Show("Невозможно достичь цели");
+                }
+            }
+        }
         private void Start_Click(object sender, RoutedEventArgs e)
         {
             int grid_row = Row.SelectedIndex;
             int grid_column = Column.SelectedIndex;
-            int[,] array = new int[2, 2];
-            var row = Back.Children[grid_row] as Grid;
-            for (int i = 0; i < grid_column; i++)
-            {
-                var local_grid = row.Children[i] as Grid;
-                //Красит горизонтальный путь
-                var road = local_grid.Children[1] as Button;
-                road.Background = new SolidColorBrush(Color.FromRgb(255, 150, 100));
-            }
-            for (int i = grid_row; i < Front.Children.Count; i++)
-            {
-                var local_grid = Front.Children[i] as Grid;
-                var column_grid = local_grid.Children[grid_column] as Grid;
-                //Красит стрелочку
-                if (i == grid_row) //не красит, если стрелочка с другого ряда
-                {
-                    var arrow = column_grid.Children[0] as ToggleButton;
-                    arrow.Background = new SolidColorBrush(Color.FromRgb(255, 150, 100));
-                }
-                //Красит вертикальный путь
-                if (i != Front.Children.Count - 1) //не красит вертикально, если последний ряд
-                {
-                    var road = column_grid.Children[3] as Button;
-                    road.Background = new SolidColorBrush(Color.FromRgb(255, 150, 100));
-                }
-            }
-
+            Execute_Snake(grid_row, grid_column);
         }
 
         private void ChangeSize_Click(object sender, RoutedEventArgs e)
         {
             int size = Convert.ToInt32(Size.Text);
+            BrokenKeys.Clear();
             Generate_Fields(size);
         }
     }

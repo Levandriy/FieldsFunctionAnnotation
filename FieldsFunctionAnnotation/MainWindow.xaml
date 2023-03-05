@@ -7,59 +7,53 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-        <Grid x:Name="Back" HorizontalAlignment="Left" VerticalAlignment="Top">
-            <Grid Margin="0" HorizontalAlignment="Left" VerticalAlignment="Top">
+        <Grid Margin="20,20,0,0" HorizontalAlignment="Left" VerticalAlignment="Top">
+            <Grid x:Name="Back" HorizontalAlignment="Left" VerticalAlignment="Top">
                 <Grid Margin="0" HorizontalAlignment="Left" VerticalAlignment="Top">
-                    <ToggleButton Margin="0" Style="{StaticResource Ball}"/>
-                    <Button Margin="30,0,0,0" Style="{StaticResource Road}"/>
-                    <Button Margin="0,30,0,0" Style="{StaticResource VerticalRoad}"/>
+                    <Grid Margin="0" HorizontalAlignment="Left" VerticalAlignment="Top">
+                        <Button Margin="0,0,0,0" Style="{StaticResource Road}"/>
+                        <ToggleButton Margin="50,0,0,0" Style="{StaticResource Ball}"/>
+                    </Grid>
+                    <Grid Margin="80,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Top">
+                        <Button Margin="0,0,0,0" Style="{StaticResource Road}"/>
+                        <ToggleButton Margin="50,0,0,0" Style="{StaticResource Ball}"/>
+                    </Grid>
                 </Grid>
-                <Grid Margin="80,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Top">
-                    <ToggleButton Margin="0" Style="{StaticResource Ball}"/>
-                    <Button Margin="30,0,0,0" Style="{StaticResource Road}"/>
-                    <Button Margin="0,30,0,0" Style="{StaticResource VerticalRoad}"/>
+                <Grid Margin="0,80,0,0" HorizontalAlignment="Left" VerticalAlignment="Top">
+                    <Grid Margin="0" HorizontalAlignment="Left" VerticalAlignment="Top">
+                        <Button Margin="0,0,0,0" Style="{StaticResource Road}"/>
+                        <ToggleButton Margin="50,0,0,0" Style="{StaticResource Ball}"/>
+                    </Grid>
+                    <Grid Margin="80,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Top">
+                        <Button Margin="0,0,0,0" Style="{StaticResource Road}"/>
+                        <ToggleButton Margin="50,0,0,0" Style="{StaticResource Ball}"/>
+                    </Grid>
                 </Grid>
             </Grid>
-            <Grid Margin="0,80,0,0" HorizontalAlignment="Left" VerticalAlignment="Top">
+            <Grid x:Name="Front" HorizontalAlignment="Left" VerticalAlignment="Top">
                 <Grid Margin="0" HorizontalAlignment="Left" VerticalAlignment="Top">
-                    <ToggleButton Margin="0" Style="{StaticResource Ball}"/>
-                    <Button Margin="30,0,0,0" Style="{StaticResource Road}"/>
-                    <Button Margin="0,30,0,0" Style="{StaticResource VerticalRoad}"/>
+                    <Grid Margin="0" HorizontalAlignment="Left" VerticalAlignment="Top">
+                        <ToggleButton Margin="65,15,0,0" Style="{StaticResource Arrow}"/>
+                        <ToggleButton Margin="95,50,0,0" Style="{StaticResource Ball}"/>
+                        <Button Margin="95,80,0,0" Style="{StaticResource VerticalRoad}"/>
+                    </Grid>
+                    <Grid Margin="80,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Top">
+                        <ToggleButton Margin="65,15,0,0" Style="{StaticResource Arrow}"/>
+                        <ToggleButton Margin="95,50,0,0" Style="{StaticResource Ball}"/>
+                        <Button Margin="95,80,0,0" Style="{StaticResource VerticalRoad}"/>
+                    </Grid>
                 </Grid>
-                <Grid Margin="80,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Top">
-                    <ToggleButton Margin="0" Style="{StaticResource Ball}"/>
-                    <Button Margin="30,0,0,0" Style="{StaticResource Road}"/>
-                    <Button Margin="0,30,0,0" Style="{StaticResource VerticalRoad}"/>
-                </Grid>
-            </Grid>
-        </Grid>
-        <Grid x:Name="Front" HorizontalAlignment="Left" VerticalAlignment="Top">
-            <Grid Margin="0" HorizontalAlignment="Left" VerticalAlignment="Top">
-                <Grid Margin="0" HorizontalAlignment="Left" VerticalAlignment="Top">
-                    <ToggleButton Margin="15,15,0,0" Style="{StaticResource Arrow}"/>
-                    <ToggleButton Margin="50,50,0,0" Style="{StaticResource Ball}"/>
-                    <Button Margin="80,50,0,0" Style="{StaticResource Road}"/>
-                    <Button Margin="50,80,0,0" Style="{StaticResource VerticalRoad}"/>
-                </Grid>
-                <Grid Margin="80,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Top">
-                    <ToggleButton Margin="15,15,0,0" Style="{StaticResource Arrow}"/>
-                    <ToggleButton Margin="50,50,0,0" Style="{StaticResource Ball}"/>
-                    <Button Margin="80,50,0,0" Style="{StaticResource Road}"/>
-                    <Button Margin="50,80,0,0" Style="{StaticResource VerticalRoad}"/>
-                </Grid>
-            </Grid>
-            <Grid Margin="0,80,0,0" HorizontalAlignment="Left" VerticalAlignment="Top">
-                <Grid Margin="0" HorizontalAlignment="Left" VerticalAlignment="Top">
-                    <ToggleButton Margin="15,15,0,0" Style="{StaticResource Arrow}"/>
-                    <ToggleButton Margin="50,50,0,0" Style="{StaticResource Ball}"/>
-                    <Button Margin="80,50,0,0" Style="{StaticResource Road}"/>
-                    <Button Margin="50,80,0,0" Style="{StaticResource VerticalRoad}"/>
-                </Grid>
-                <Grid Margin="80,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Top">
-                    <ToggleButton Margin="15,15,0,0" Style="{StaticResource Arrow}"/>
-                    <ToggleButton Margin="50,50,0,0" Style="{StaticResource Ball}"/>
-                    <Button Margin="80,50,0,0" Style="{StaticResource Road}"/>
-                    <Button Margin="50,80,0,0" Style="{StaticResource VerticalRoad}"/>
+                <Grid Margin="0,80,0,0" HorizontalAlignment="Left" VerticalAlignment="Top">
+                    <Grid Margin="0" HorizontalAlignment="Left" VerticalAlignment="Top">
+                        <ToggleButton Margin="65,15,0,0" Style="{StaticResource Arrow}"/>
+                        <ToggleButton Margin="95,50,0,0" Style="{StaticResource Ball}"/>
+                        <Button Margin="95,80,0,0" Style="{StaticResource VerticalRoad}"/>
+                    </Grid>
+                    <Grid Margin="80,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Top">
+                        <ToggleButton Margin="65,15,0,0" Style="{StaticResource Arrow}"/>
+                        <ToggleButton Margin="95,50,0,0" Style="{StaticResource Ball}"/>
+                        <Button Margin="95,80,0,0" Style="{StaticResource VerticalRoad}"/>
+                    </Grid>
                 </Grid>
             </Grid>
         </Grid>
