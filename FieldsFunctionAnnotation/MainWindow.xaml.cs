@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Diagnostics;
+
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -44,10 +46,28 @@ namespace FieldsFunctionAnnotation
             public int Current_Column { get; set; } = 0;
             public bool Snake_on_Front = false;
             public bool? win = null;
+            public void Reset(int size)
+            {
+                var snake = this;
+                snake.Current_Row = snake.Start;
+                snake.Current_Column = 0;
+                snake.Destination_column = snake.End;
+                snake.Destination_row = size;
+                snake.win = null;
+                snake.Snake_on_Front = false;
+            }
         }
+        public List<Snake> Snakes = new();
         public List<BrokenKey> BrokenKeys = new();
+        private void Delete_Snake(Snake snake)
+        {
+            snake.Snake_Color = new SolidColorBrush(Colors.Black);
+            Execute_Snake(snake);
+            Snakes.Remove(snake);
+        }
         private void Key_broken(object sender, RoutedEventArgs e)
         {
+            var clicked = sender as ToggleButton;
             for (int i = 0; i < Front.Children.Count; i++)
             {
                 var grid = Front.Children[i] as Grid;
@@ -55,18 +75,40 @@ namespace FieldsFunctionAnnotation
                 {
                     var child_grid = grid.Children[j] as Grid;
                     var arrow = child_grid.Children[0] as ToggleButton;
-                    if (arrow == sender as ToggleButton)
+                    if (arrow == clicked)
                     {
+                        var query = from snakes in Snakes select snakes;
+                        Snake snake = query.FirstOrDefault();
+                        if (snake != null)
+                        {
+                            snake.Reset(grid.Children.Count - 1);
+                            Delete_Snake(snake);
+                            Debug.WriteLine($"Удалена змейка {snake.Start}:{snake.End} ; Может дойти {snake.win}");
+                        }
                         BrokenKey brokenKey = new BrokenKey()
                         {
                             Row = i,
                             Column = j,
                             Toggle = arrow
                         };
-                        Debug.WriteLine(brokenKey.Row);
-                        Debug.WriteLine(brokenKey.Column);
-                        Debug.WriteLine(brokenKey.Toggle);
-                        BrokenKeys.Add(brokenKey);
+                        if (arrow.IsChecked == true)
+                        {
+                            BrokenKeys.Add(brokenKey);
+                            Debug.WriteLine($"Добавлен сломанный ключ {brokenKey.Row} : {brokenKey.Column}");
+                        }
+                        else
+                        {
+                            var key = from keys in BrokenKeys where keys.Row == brokenKey.Row && keys.Column == brokenKey.Column select keys;
+                            Debug.WriteLine($"Удалён сломанный ключ {brokenKey.Row} : {brokenKey.Column} : {BrokenKeys.Remove(key.FirstOrDefault())}");
+                        }
+                        if (snake != null)
+                        {
+                            snake.Reset(grid.Children.Count - 1);
+                            snake.Snake_Color = new SolidColorBrush(Color.FromRgb(145, 135, 165)); 
+                            Snakes.Add(snake);
+                            Execute_Snake(snake);
+                            Debug.WriteLine($"Добавлена змейка {snake.Start}:{snake.End} ; Может дойти {snake.win}");
+                        }
                     }
                 }
             }
@@ -127,7 +169,8 @@ namespace FieldsFunctionAnnotation
                         Margin = new Thickness(65, 15, 0, 0),
                         Style = FindResource("Arrow") as Style
                     };
-                    arrow.Click += Key_broken;
+                    arrow.Checked += Key_broken;
+                    arrow.Unchecked += Key_broken;
                     var front_ball = new ToggleButton()
                     {
                         Margin = new Thickness(95, 50, 0, 0),
@@ -319,6 +362,7 @@ namespace FieldsFunctionAnnotation
                     }
                     else
                     {
+                        Debug.WriteLine($"Ключ по вертикали {vertical_query.FirstOrDefault().Row}:{vertical_query.FirstOrDefault().Column}");
                         snake.Destination_row -= step;
                     }
                 }
@@ -375,6 +419,7 @@ namespace FieldsFunctionAnnotation
                     }
                     else
                     {
+                        Debug.WriteLine($"Ключ по горизонтали {horizontal_query.FirstOrDefault().Row}:{horizontal_query.FirstOrDefault().Column}");
                         snake.Destination_column -= step;
                         Debug.WriteLine("Уменьшил колонку назначения. Теперь: " +  snake.Destination_column);
                     }
@@ -392,22 +437,20 @@ namespace FieldsFunctionAnnotation
                 }
             }
         }
-        private void Execute_Snake(int row, int column)
+        private void Execute_Snake(Snake snake)
         {
             int size = Convert.ToInt32(Size.Text) - 1;
-            Snake snake = new Snake()
-            {
-                Start = row,
-                End = column,
-                Snake_Color = new SolidColorBrush(Color.FromRgb(145, 135, 165)),
-                Current_Row = row,
-                Destination_row = size,
-                Destination_column = column
-            };
             {
                 var back_column = Get_Back_Grid(snake.Current_Row, snake.Current_Column);
                 var road = back_column.Children[0] as Button;
-                road.Background = snake.Snake_Color;
+                if (road.Background != snake.Snake_Color)
+                {
+                    road.Background = snake.Snake_Color;
+                }
+                else
+                {
+                    road.Background = new SolidColorBrush(Colors.Black);
+                }
             }
             while (snake.win == null)
             {
@@ -426,7 +469,14 @@ namespace FieldsFunctionAnnotation
                     Debug.WriteLine("Победа");
                     var front_column = Get_Front_Grid(snake.Current_Row, snake.Current_Column);
                     var road = front_column.Children[2] as Button;
-                    road.Background = snake.Snake_Color;
+                    if (road.Background != snake.Snake_Color)
+                    {
+                        road.Background = snake.Snake_Color;
+                    }
+                    else
+                    {
+                        road.Background = new SolidColorBrush(Colors.Black);
+                    }
                 }
                 else
                 {
@@ -436,9 +486,21 @@ namespace FieldsFunctionAnnotation
         }
         private void Start_Click(object sender, RoutedEventArgs e)
         {
-            int grid_row = Row.SelectedIndex;
-            int grid_column = Column.SelectedIndex;
-            Execute_Snake(grid_row, grid_column);
+            int size = Convert.ToInt32(Size.Text) - 1;
+            int row = Row.SelectedIndex;
+            int column = Column.SelectedIndex;
+            Snake snake = new Snake()
+            {
+                Start = row,
+                End = column,
+                Snake_Color = new SolidColorBrush(Color.FromRgb(145, 135, 165)),
+                Current_Row = row,
+                Destination_row = size,
+                Destination_column = column
+            };
+            Snakes.Add(snake);
+            Debug.WriteLine($"Добавлена змейка {snake.Start}:{snake.End} ; Может дойти {snake.win}");
+            Execute_Snake(snake);
         }
 
         private void ChangeSize_Click(object sender, RoutedEventArgs e)
